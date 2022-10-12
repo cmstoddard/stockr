@@ -16,13 +16,13 @@ client.on('connect', function (connection) {
     connection.sendUTF('PASS ' + secretkeys_1.Keys.password);
     connection.sendUTF('NICK ' + secretkeys_1.Keys.twitchToken);
     connection.sendUTF('CAP REQ :twitch.tv/tags twitch.tv/commands');
-    connection.sendUTF('JOIN #strager,#eternalenvyy');
+    connection.sendUTF('JOIN #strager,#eternalenvyy,#bananaslamjamma,#moonmoon');
     //gets the messages back
     connection.on('message', function (message) {
-        //console.log(message.utf8Data);
-        var meme = message.utf8Data;
-        (0, process_1.parseMessage)(meme);
-        if (meme.includes('PING')) {
+        var messageUTF8 = message.utf8Data;
+        (0, process_1.parseMessage)(messageUTF8);
+        //twitch doesn't send the ping as an event, but in a msg 
+        if (messageUTF8.includes('PING')) {
             connection.sendUTF('PONG :tmi.twitch.tv');
             console.log('PONG :tmi.twitch.tv');
         }

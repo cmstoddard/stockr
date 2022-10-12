@@ -37,14 +37,52 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.parseMessage = void 0;
-function parseMessage(message) {
+function parseMessage(msg) {
     return __awaiter(this, void 0, void 0, function () {
-        var split;
+        var sliceAt, sliceMessage, userMessage, slicedMsg, _i, slicedMsg_1, slice, sliceLR, left, right, posOfPRIVMSG, colonIndex;
         return __generator(this, function (_a) {
-            split = message.split(';');
-            console.log(split);
+            sliceAt = msg.indexOf("user-type") - 1;
+            sliceMessage = msg.slice(0, sliceAt);
+            userMessage = msg.slice(sliceAt);
+            slicedMsg = sliceMessage.split(';');
+            //console.log(slicedMsg);
+            for (_i = 0, slicedMsg_1 = slicedMsg; _i < slicedMsg_1.length; _i++) {
+                slice = slicedMsg_1[_i];
+                sliceLR = slice.split('=');
+                console.log(sliceLR);
+                left = sliceLR.at(0);
+                right = sliceLR.at(1);
+                console.log(left);
+                console.log(right);
+            }
+            posOfPRIVMSG = userMessage.indexOf('PRIVMSG');
+            console.log(userMessage.indexOf(':'));
+            colonIndex = userMessage.indexOf(':', posOfPRIVMSG);
+            console.log(userMessage.slice(colonIndex));
             return [2 /*return*/];
         });
     });
 }
 exports.parseMessage = parseMessage;
+/*
+[
+  '@badge-info=subscriber/6',
+  'badges=subscriber/0',
+  'client-nonce=b84e7cfb0f5c987ed0dd699d786a13b8',
+  'color=',
+  'display-name=stoddardlabs',
+  'emotes=',
+  'first-msg=0',
+  'flags=',
+  'id=1d0a0b05-fd64-4d71-a271-1641ae7ce677',
+  'mod=0',
+  'returning-chatter=0',
+  'room-id=21065580',
+  'subscriber=1',
+  'tmi-sent-ts=1665272605132',
+  'turbo=0',
+  'user-id=423016548',
+  'user-type= :stoddardlabs!stoddardlabs@stoddardlabs.tmi.twitch.tv PRIVMSG #strager :test\r\n'
+]
+    we split on user-type, because a chatter could type ; and we would be sad
+*/ 
