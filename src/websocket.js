@@ -11,16 +11,15 @@ client.on('connectFailed', function (error) {
 });
 client.on('connect', function (connection) {
     console.log('WebSocket Client Connected');
-    // Send CAP (optional), PASS, and NICK messages
-    //connection.sendUTF('PASS oauth:n5co8mx3nvk02rdv6c28chd3b34za0')
     connection.sendUTF('PASS ' + secretkeys_1.Keys.password);
     connection.sendUTF('NICK ' + secretkeys_1.Keys.twitchToken);
     connection.sendUTF('CAP REQ :twitch.tv/tags twitch.tv/commands');
-    connection.sendUTF('JOIN #strager,#eternalenvyy,#bananaslamjamma,#moonmoon');
+    //connection.sendUTF('JOIN #strager,#eternalenvyy,#bananaslamjamma,#moonmoon');
+    connection.sendUTF('JOIN #eternalenvyy');
     //gets the messages back
     connection.on('message', function (message) {
         var messageUTF8 = message.utf8Data;
-        (0, process_1.parseMessage)(messageUTF8);
+        (0, process_1.parsePayload)(messageUTF8);
         //twitch doesn't send the ping as an event, but in a msg 
         if (messageUTF8.includes('PING')) {
             connection.sendUTF('PONG :tmi.twitch.tv');

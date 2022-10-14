@@ -36,34 +36,49 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.parseMessage = void 0;
-function parseMessage(msg) {
+exports.parsePayload = void 0;
+function parsePayload(msg) {
     return __awaiter(this, void 0, void 0, function () {
-        var sliceAt, sliceMessage, userMessage, slicedMsg, _i, slicedMsg_1, slice, sliceLR, left, right, posOfPRIVMSG, colonIndex;
+        var upToUserType, userType, payloadData, payloadDataSplit, _i, payloadDataSplit_1, slice, splitSlice, left, right;
         return __generator(this, function (_a) {
-            sliceAt = msg.indexOf("user-type") - 1;
-            sliceMessage = msg.slice(0, sliceAt);
-            userMessage = msg.slice(sliceAt);
-            slicedMsg = sliceMessage.split(';');
-            //console.log(slicedMsg);
-            for (_i = 0, slicedMsg_1 = slicedMsg; _i < slicedMsg_1.length; _i++) {
-                slice = slicedMsg_1[_i];
-                sliceLR = slice.split('=');
-                console.log(sliceLR);
-                left = sliceLR.at(0);
-                right = sliceLR.at(1);
-                console.log(left);
-                console.log(right);
+            upToUserType = msg.indexOf("user-type") - 1;
+            userType = msg.slice(upToUserType);
+            payloadData = msg.slice(0, upToUserType);
+            payloadDataSplit = payloadData.split(';');
+            //this gets the message up to user type
+            for (_i = 0, payloadDataSplit_1 = payloadDataSplit; _i < payloadDataSplit_1.length; _i++) {
+                slice = payloadDataSplit_1[_i];
+                splitSlice = slice.split('=');
+                left = splitSlice.at(0);
+                right = splitSlice.at(1);
             }
-            posOfPRIVMSG = userMessage.indexOf('PRIVMSG');
-            console.log(userMessage.indexOf(':'));
-            colonIndex = userMessage.indexOf(':', posOfPRIVMSG);
-            console.log(userMessage.slice(colonIndex));
+            extractUserTypeInfo(userType);
             return [2 /*return*/];
         });
     });
 }
-exports.parseMessage = parseMessage;
+exports.parsePayload = parsePayload;
+function extractUserTypeInfo(userTypeMessage) {
+    //let userType: string = msg.slice(uptoUserType,);
+    var userType = userTypeMessage;
+    //there is a space between the = and username for some reason
+    var userTypeSplit = userType.split('= ');
+    //console.log(userTypeSplit[1]);
+    var ut = userTypeSplit[1];
+    //console.log(userTypeData);
+    if (ut != undefined) {
+        var chatterUsername = ut.substring(1, ut.indexOf('!'));
+        var indexOfPrivMsg = ut.indexOf('PRIVMSG');
+        var colonIndex = ut.indexOf(':', indexOfPrivMsg);
+        //this
+        var streamerUsername = ut.substring(indexOfPrivMsg + 9, colonIndex);
+        var userMessage = ut.substring(colonIndex + 1, userType.indexOf('\r\n'));
+        //console.log(streamerUsername + " " + chatterUsername + " " + userMessage);
+        console.log(chatterUsername);
+        console.log(streamerUsername);
+        console.log(userMessage);
+    }
+}
 /*
 [
   '@badge-info=subscriber/6',
@@ -85,4 +100,4 @@ exports.parseMessage = parseMessage;
   'user-type= :stoddardlabs!stoddardlabs@stoddardlabs.tmi.twitch.tv PRIVMSG #strager :test\r\n'
 ]
     we split on user-type, because a chatter could type ; and we would be sad
-*/ 
+*/
