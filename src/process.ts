@@ -5,52 +5,69 @@ export async function parsePayload(msg: string) {
     let userType:string = msg.slice(upToUserType, );
     let payloadData: string = msg.slice(0, upToUserType);
     
-    extractPayload(payloadData);
-    extractUserTypeInfo(userType);
+    let payload = extractPayload(payloadData);
+    let userTypeInfo = extractUserTypeInfo(userType).catch((err) => {
+        console.log(err);
+    });
+    
+    Promise.all([payload, userTypeInfo]).then((values) => {
+        console.log('V-------------------------------------------------------------------------------------------------------V');
+        console.log(values);
+        console.log('A-------------------------------------------------------------------------------------------------------A');
+    });
 
 
-    //console.log(streamerUsername, chatterUsername, userMessage);
 }
 
-async function extractPayload(payload: string) {
+//doesn't parse user-type
+async function extractPayload(payload: string): Promise<Map<string, string>> {
     
     const payloadMap: Map<string, string> = new Map<string, string>(); 
     let payloadDataSplit: string[] = payload.split(';');
+    
     //this gets the message up to user type
     for (let slice of payloadDataSplit) {
-        //console.log(slice);
-        let splitSlice = slice.split('=');
+        const splitSlice = slice.split('=');
         //console.log(sliceLR);
-        let key: string = splitSlice.at(0);
-        let value: string = splitSlice.at(1);
+        const key: string = splitSlice[0];
+        const value: string = splitSlice[1];
         payloadMap.set(key, value);
     }
-    console.log(payloadMap);
-
-
+    return payloadMap;
 }
-async function extractUserTypeInfo(userTypeMessage: string) {
 
-    //let userType: string = msg.slice(uptoUserType,);
-    let userType: string = userTypeMessage;
+async function extractUserTypeInfo(userTypeMessage: string): Promise<string[]> {
+    const userType: string = userTypeMessage;
+    
     //there is a space between the = and username for some reason
-    let userTypeSplit: string[] = userType.split('= ');
-    //console.log(userTypeSplit[1]);
-    let ut: string = userTypeSplit[1];
-    //console.log(userTypeData);
-    if (ut != undefined) {
-        let chatterUsername: string = ut.substring(1, ut.indexOf('!'));
-        let indexOfPrivMsg: number = ut.indexOf('PRIVMSG');
-        let colonIndex: number = ut.indexOf(':', indexOfPrivMsg);
-        let streamerUsername: string = ut.substring(indexOfPrivMsg + 9, colonIndex);
-        let userMessage: string = ut.substring(colonIndex + 1, userType.indexOf('\r\n'));
-        //console.log(streamerUsername + " " + chatterUsername + " " + userMessage);
-        console.log(chatterUsername);
-        console.log(streamerUsername);
-        console.log(userMessage);
-    }
-}
 
+    const userTypeSplit: string[] = userType.split(':');
+    if(userTypeSplit.length <=  2) {
+        return Promise.reject('user info format not expected');
+    }
+    const ut: string = userTypeSplit[1];
+    //console.log(userTypeData);
+    //console.log('usertypesplit: ', userTypeSplit);
+    if (ut != undefined) {
+        const userInfo: string[] = [];
+        const chatterUsername: string = ut.substring(ut.indexOf(':'), ut.indexOf('!'));
+        const indexOfPrivMsg: number = ut.indexOf('PRIVMSG');
+        const colonIndex: number = ut.indexOf(':', indexOfPrivMsg);
+        const streamerUsername: string = ut.slice(indexOfPrivMsg + 9, colonIndex);
+        
+        const messageColon: number = userType.indexOf(':', indexOfPrivMsg);
+        const userMessage: string = userType.slice(messageColon, userType.indexOf('\r\n'));
+
+        userInfo.push(chatterUsername);
+        userInfo.push(streamerUsername);
+        userInfo.push(userMessage);
+        return userInfo;
+    } else {
+        //console.log('undefined: ' + userTypeMessage);
+    }
+
+}
+//undefined: ;user-type=;vip=1 :anthonywritescodebot!anthonywritescodebot@anthonywritescodebot.tmi.twitch.tv PRIVMSG #anthonywritescode :motd updated!  thanks for spending points!
 /* 
 [
   '@badge-info=subscriber/6',

@@ -39,18 +39,26 @@ exports.__esModule = true;
 exports.parsePayload = void 0;
 function parsePayload(msg) {
     return __awaiter(this, void 0, void 0, function () {
-        var upToUserType, userType, payloadData;
+        var upToUserType, userType, payloadData, payload, userTypeInfo;
         return __generator(this, function (_a) {
             upToUserType = msg.indexOf("user-type") - 1;
             userType = msg.slice(upToUserType);
             payloadData = msg.slice(0, upToUserType);
-            extractPayload(payloadData);
-            extractUserTypeInfo(userType);
+            payload = extractPayload(payloadData);
+            userTypeInfo = extractUserTypeInfo(userType)["catch"](function (err) {
+                console.log(err);
+            });
+            Promise.all([payload, userTypeInfo]).then(function (values) {
+                console.log('V-------------------------------------------------------------------------------------------------------V');
+                console.log(values);
+                console.log('A-------------------------------------------------------------------------------------------------------A');
+            });
             return [2 /*return*/];
         });
     });
 }
 exports.parsePayload = parsePayload;
+//doesn't parse user-type
 function extractPayload(payload) {
     return __awaiter(this, void 0, void 0, function () {
         var payloadMap, payloadDataSplit, _i, payloadDataSplit_1, slice, splitSlice, key, value;
@@ -61,38 +69,47 @@ function extractPayload(payload) {
             for (_i = 0, payloadDataSplit_1 = payloadDataSplit; _i < payloadDataSplit_1.length; _i++) {
                 slice = payloadDataSplit_1[_i];
                 splitSlice = slice.split('=');
-                key = splitSlice.at(0);
-                value = splitSlice.at(1);
+                key = splitSlice[0];
+                value = splitSlice[1];
                 payloadMap.set(key, value);
             }
-            console.log(payloadMap);
-            return [2 /*return*/];
+            return [2 /*return*/, payloadMap];
         });
     });
 }
 function extractUserTypeInfo(userTypeMessage) {
     return __awaiter(this, void 0, void 0, function () {
-        var userType, userTypeSplit, ut, chatterUsername, indexOfPrivMsg, colonIndex, streamerUsername, userMessage;
+        var userType, userTypeSplit, ut, userInfo, chatterUsername, indexOfPrivMsg, colonIndex, streamerUsername, messageColon, userMessage;
         return __generator(this, function (_a) {
             userType = userTypeMessage;
-            userTypeSplit = userType.split('= ');
+            userTypeSplit = userType.split(':');
+            if (userTypeSplit.length <= 2) {
+                return [2 /*return*/, Promise.reject('user info format not expected')];
+            }
             ut = userTypeSplit[1];
             //console.log(userTypeData);
+            //console.log('usertypesplit: ', userTypeSplit);
             if (ut != undefined) {
-                chatterUsername = ut.substring(1, ut.indexOf('!'));
+                userInfo = [];
+                chatterUsername = ut.substring(ut.indexOf(':'), ut.indexOf('!'));
                 indexOfPrivMsg = ut.indexOf('PRIVMSG');
                 colonIndex = ut.indexOf(':', indexOfPrivMsg);
-                streamerUsername = ut.substring(indexOfPrivMsg + 9, colonIndex);
-                userMessage = ut.substring(colonIndex + 1, userType.indexOf('\r\n'));
-                //console.log(streamerUsername + " " + chatterUsername + " " + userMessage);
-                console.log(chatterUsername);
-                console.log(streamerUsername);
-                console.log(userMessage);
+                streamerUsername = ut.slice(indexOfPrivMsg + 9, colonIndex);
+                messageColon = userType.indexOf(':', indexOfPrivMsg);
+                userMessage = userType.slice(messageColon, userType.indexOf('\r\n'));
+                userInfo.push(chatterUsername);
+                userInfo.push(streamerUsername);
+                userInfo.push(userMessage);
+                return [2 /*return*/, userInfo];
+            }
+            else {
+                //console.log('undefined: ' + userTypeMessage);
             }
             return [2 /*return*/];
         });
     });
 }
+//undefined: ;user-type=;vip=1 :anthonywritescodebot!anthonywritescodebot@anthonywritescodebot.tmi.twitch.tv PRIVMSG #anthonywritescode :motd updated!  thanks for spending points!
 /*
 [
   '@badge-info=subscriber/6',
