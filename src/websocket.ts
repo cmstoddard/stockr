@@ -10,14 +10,14 @@ client.on('connectFailed', function (error: any): void {
 
 client.on('connect', function (connection: any): void {
     console.log('WebSocket Client Connected');
+    
 
     connection.sendUTF('PASS ' + Keys.password);
                       connection.sendUTF('NICK ' + Keys.twitchToken);
 
     connection.sendUTF('CAP REQ :twitch.tv/tags twitch.tv/commands');
     //connection.sendUTF('JOIN #strager,#eternalenvyy,#bananaslamjamma,#moonmoon');
-    connection.sendUTF('JOIN #eternalenvyy');
-
+    connection.sendUTF('JOIN #pgl_dota2');
     //gets the messages back
     connection.on('message', function (message: any): void {
         let messageUTF8 = message.utf8Data;
@@ -29,7 +29,6 @@ client.on('connect', function (connection: any): void {
         }
     });
 });
-
 export function startWS(): void {
     client.connect('ws://irc-ws.chat.twitch.tv:80');
 }

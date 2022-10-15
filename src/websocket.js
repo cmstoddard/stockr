@@ -15,7 +15,7 @@ client.on('connect', function (connection) {
     connection.sendUTF('NICK ' + secretkeys_1.Keys.twitchToken);
     connection.sendUTF('CAP REQ :twitch.tv/tags twitch.tv/commands');
     //connection.sendUTF('JOIN #strager,#eternalenvyy,#bananaslamjamma,#moonmoon');
-    connection.sendUTF('JOIN #eternalenvyy');
+    connection.sendUTF('JOIN #pgl_dota2');
     //gets the messages back
     connection.on('message', function (message) {
         var messageUTF8 = message.utf8Data;

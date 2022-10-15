@@ -1,27 +1,35 @@
 export async function parsePayload(msg: string) {
+        
 
     let upToUserType: number = msg.indexOf("user-type") - 1;
     let userType:string = msg.slice(upToUserType, );
     let payloadData: string = msg.slice(0, upToUserType);
-    let payloadDataSplit: string[] = payloadData.split(';');
-
-    //this gets the message up to user type
-    for (let slice of payloadDataSplit) {
-        //console.log(slice);
-        let splitSlice = slice.split('=');
-        //console.log(sliceLR);
-        let left: string = splitSlice.at(0);
-        let right: string = splitSlice.at(1);
-    }
-
+    
+    extractPayload(payloadData);
     extractUserTypeInfo(userType);
 
 
     //console.log(streamerUsername, chatterUsername, userMessage);
 }
 
+async function extractPayload(payload: string) {
+    
+    const payloadMap: Map<string, string> = new Map<string, string>(); 
+    let payloadDataSplit: string[] = payload.split(';');
+    //this gets the message up to user type
+    for (let slice of payloadDataSplit) {
+        //console.log(slice);
+        let splitSlice = slice.split('=');
+        //console.log(sliceLR);
+        let key: string = splitSlice.at(0);
+        let value: string = splitSlice.at(1);
+        payloadMap.set(key, value);
+    }
+    console.log(payloadMap);
 
-function extractUserTypeInfo(userTypeMessage: string) {
+
+}
+async function extractUserTypeInfo(userTypeMessage: string) {
 
     //let userType: string = msg.slice(uptoUserType,);
     let userType: string = userTypeMessage;
@@ -34,17 +42,14 @@ function extractUserTypeInfo(userTypeMessage: string) {
         let chatterUsername: string = ut.substring(1, ut.indexOf('!'));
         let indexOfPrivMsg: number = ut.indexOf('PRIVMSG');
         let colonIndex: number = ut.indexOf(':', indexOfPrivMsg);
-        //this
         let streamerUsername: string = ut.substring(indexOfPrivMsg + 9, colonIndex);
         let userMessage: string = ut.substring(colonIndex + 1, userType.indexOf('\r\n'));
         //console.log(streamerUsername + " " + chatterUsername + " " + userMessage);
         console.log(chatterUsername);
         console.log(streamerUsername);
         console.log(userMessage);
-
     }
 }
-
 
 /* 
 [
