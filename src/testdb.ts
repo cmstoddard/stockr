@@ -14,7 +14,7 @@ export const meme = (): void => {
     
     client.connect();
 
-    client.query('Select * from users', (err, res) => {
+    client.query('Select * from users', (err: any, res: any) => {
         if(!err) {
             console.log(res.rows);
         } else {

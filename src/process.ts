@@ -64,6 +64,7 @@ async function extractUserTypeInfo(userTypeMessage: string): Promise<Map<string,
     } else {
         //console.log('undefined: ' + userTypeMessage);
         console.warn('undefined user type');
+        return Promise.reject(new Error('nope'));
     }
 
 }

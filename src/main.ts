@@ -1,5 +1,5 @@
 import {startWS} from './websocket'
-import {meme} from './database'
+import {meme} from './testdb'
 function main() {
    //startWS();
    meme(); 
