@@ -18,7 +18,7 @@ export async function parsePayload(msg: string) {
 
 
 }
-
+//at some point this all should be rewritten to not be so janky, and faster. For now though, this will work...
 //doesn't parse user-type
 async function extractPayload(payload: string): Promise<Map<string, string>> {
     
@@ -35,8 +35,7 @@ async function extractPayload(payload: string): Promise<Map<string, string>> {
     }
     return payloadMap;
 }
-
-async function extractUserTypeInfo(userTypeMessage: string): Promise<string[]> {
+async function extractUserTypeInfo(userTypeMessage: string): Promise<Map<string, string>> {
     const userType: string = userTypeMessage;
     
     //there is a space between the = and username for some reason
@@ -49,21 +48,22 @@ async function extractUserTypeInfo(userTypeMessage: string): Promise<string[]> {
     //console.log(userTypeData);
     //console.log('usertypesplit: ', userTypeSplit);
     if (ut != undefined) {
-        const userInfo: string[] = [];
+        const userInfo = new Map<string, string>();
         const chatterUsername: string = ut.substring(ut.indexOf(':'), ut.indexOf('!'));
         const indexOfPrivMsg: number = ut.indexOf('PRIVMSG');
         const colonIndex: number = ut.indexOf(':', indexOfPrivMsg);
         const streamerUsername: string = ut.slice(indexOfPrivMsg + 9, colonIndex);
         
         const messageColon: number = userType.indexOf(':', indexOfPrivMsg);
-        const userMessage: string = userType.slice(messageColon, userType.indexOf('\r\n'));
+        const userMessage: string = userType.slice(messageColon+1, userType.indexOf('\r\n'));
 
-        userInfo.push(chatterUsername);
-        userInfo.push(streamerUsername);
-        userInfo.push(userMessage);
+        userInfo.set('username',chatterUsername);
+        userInfo.set('streamer', streamerUsername);
+        userInfo.set('message', userMessage);
         return userInfo;
     } else {
         //console.log('undefined: ' + userTypeMessage);
+        console.warn('undefined user type');
     }
 
 }

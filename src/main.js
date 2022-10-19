@@ -1,7 +1,8 @@
 "use strict";
 exports.__esModule = true;
-var websocket_1 = require("./websocket");
+var database_1 = require("./database");
 function main() {
-    (0, websocket_1.startWS)();
+    //startWS();
+    (0, database_1.meme)();
 }
 main();

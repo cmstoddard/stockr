@@ -58,6 +58,7 @@ function parsePayload(msg) {
     });
 }
 exports.parsePayload = parsePayload;
+//at some point this all should be rewritten to not be so janky, and faster. For now though, this will work...
 //doesn't parse user-type
 function extractPayload(payload) {
     return __awaiter(this, void 0, void 0, function () {
@@ -90,20 +91,21 @@ function extractUserTypeInfo(userTypeMessage) {
             //console.log(userTypeData);
             //console.log('usertypesplit: ', userTypeSplit);
             if (ut != undefined) {
-                userInfo = [];
+                userInfo = new Map();
                 chatterUsername = ut.substring(ut.indexOf(':'), ut.indexOf('!'));
                 indexOfPrivMsg = ut.indexOf('PRIVMSG');
                 colonIndex = ut.indexOf(':', indexOfPrivMsg);
                 streamerUsername = ut.slice(indexOfPrivMsg + 9, colonIndex);
                 messageColon = userType.indexOf(':', indexOfPrivMsg);
-                userMessage = userType.slice(messageColon, userType.indexOf('\r\n'));
-                userInfo.push(chatterUsername);
-                userInfo.push(streamerUsername);
-                userInfo.push(userMessage);
+                userMessage = userType.slice(messageColon + 1, userType.indexOf('\r\n'));
+                userInfo.set('username', chatterUsername);
+                userInfo.set('streamer', streamerUsername);
+                userInfo.set('message', userMessage);
                 return [2 /*return*/, userInfo];
             }
             else {
                 //console.log('undefined: ' + userTypeMessage);
+                console.warn('undefined user type');
             }
             return [2 /*return*/];
         });
