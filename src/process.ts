@@ -1,30 +1,47 @@
+import { meme } from "./testdb";
+
 export async function parsePayload(msg: string) {
-        
 
     let upToUserType: number = msg.indexOf("user-type") - 1;
-    let userType:string = msg.slice(upToUserType, );
+
+    //if the msg doesn't have a user-type field, we don't care about it's contents
+    if (upToUserType === -2) {
+        return;
+    }
+    let userType: string = msg.slice(upToUserType,);
+    if (userType.includes('JOIN') || userType.includes('/NAMES') || userType.includes('USERSTATE')) {
+        return
+    }
     let payloadData: string = msg.slice(0, upToUserType);
-    
+
     let payload = extractPayload(payloadData);
     let userTypeInfo = extractUserTypeInfo(userType).catch((err) => {
         console.log(err);
     });
-    
+
     Promise.all([payload, userTypeInfo]).then((values) => {
-        console.log('V-------------------------------------------------------------------------------------------------------V');
-        console.log(values);
-        console.log('A-------------------------------------------------------------------------------------------------------A');
+        const pl = values[0];
+        const uti = values[1];
+        let msgInfo;
+        if (pl != null && uti != null) {
+            msgInfo = new Map([...pl, ...uti]);
+        }
+        if (msgInfo != undefined) {
+            meme(msgInfo);
+        }
+        console.log(msgInfo);
+
+    }).catch(error => {
+        error;
     });
-
-
 }
 //at some point this all should be rewritten to not be so janky, and faster. For now though, this will work...
 //doesn't parse user-type
 async function extractPayload(payload: string): Promise<Map<string, string>> {
-    
-    const payloadMap: Map<string, string> = new Map<string, string>(); 
+
+    const payloadMap: Map<string, string> = new Map<string, string>();
     let payloadDataSplit: string[] = payload.split(';');
-    
+
     //this gets the message up to user type
     for (let slice of payloadDataSplit) {
         const splitSlice = slice.split('=');
@@ -37,11 +54,11 @@ async function extractPayload(payload: string): Promise<Map<string, string>> {
 }
 async function extractUserTypeInfo(userTypeMessage: string): Promise<Map<string, string>> {
     const userType: string = userTypeMessage;
-    
+
     //there is a space between the = and username for some reason
 
     const userTypeSplit: string[] = userType.split(':');
-    if(userTypeSplit.length <=  2) {
+    if (userTypeSplit.length <= 2) {
         return Promise.reject('user info format not expected');
     }
     const ut: string = userTypeSplit[1];
@@ -53,17 +70,18 @@ async function extractUserTypeInfo(userTypeMessage: string): Promise<Map<string,
         const indexOfPrivMsg: number = ut.indexOf('PRIVMSG');
         const colonIndex: number = ut.indexOf(':', indexOfPrivMsg);
         const streamerUsername: string = ut.slice(indexOfPrivMsg + 9, colonIndex);
-        
-        const messageColon: number = userType.indexOf(':', indexOfPrivMsg);
-        const userMessage: string = userType.slice(messageColon+1, userType.indexOf('\r\n'));
 
-        userInfo.set('username',chatterUsername);
+        const messageColon: number = userType.indexOf(':', indexOfPrivMsg);
+
+        const userMessage: string = userType.slice(messageColon + 1, userType.indexOf('\r\n'));
+
+        userInfo.set('username', chatterUsername);
         userInfo.set('streamer', streamerUsername);
         userInfo.set('message', userMessage);
         return userInfo;
     } else {
         //console.log('undefined: ' + userTypeMessage);
-        console.warn('undefined user type');
+        //console.warn('undefined user type');
         return Promise.reject(new Error('nope'));
     }
 

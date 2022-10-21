@@ -1,4 +1,4 @@
-const {Client} = require('pg');
+const { Client } = require('pg');
 
 const client = new Client({
     user: 'christopher',
@@ -8,20 +8,21 @@ const client = new Client({
     post: 5432,
 });
 
-
-
-export const meme = (): void => {
-    
+export const startClient = () => {
     client.connect();
+    console.log('client started');
+}
 
-    client.query('Select * from users', (err: any, res: any) => {
-        if(!err) {
+export const meme = (msgInfo: Map<string, string>) => {
+    let name = msgInfo.get('username');
+
+    //client.query('Select * from users', (err: any, res: any) => {
+    client.query('INSERT INTO users (name) VALUES ($1) RETURNING *', [name], (err: any, res: any) => {
+        if (!err) {
             console.log(res.rows);
         } else {
             console.log(err.message);
         }
-        client.end();
-})
-
+    });
 }
 
